@@ -1,6 +1,6 @@
 package main
 
-import "github.com/photo-server/api"
+import "github.com/practice2017/photo-server/api"
 
 func main() {
 	api.Run()

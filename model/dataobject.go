@@ -48,8 +48,10 @@ func NewPerson(p Person) (Person, error) {
 	}
 
 	p.ID = UUID
+	//p.Name = namephoto
+	//p.Photo = urlphoto
 
-	res, err = r.DB("address").Table("address").Insert(p).Run(session)
+	res, err = r.DB("instagram").Table("person").Insert(p).Run(session)
 	if err != nil {
 		return p, err
 	}

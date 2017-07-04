@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/photo-server/model"
+	"github.com/practice2017/photo-server/model"
 )
 
 //Run runs the server
@@ -21,6 +21,7 @@ func Run() {
 	r.HandleFunc("/", helloWorldHandler).Methods("GET")
 	r.HandleFunc("/persons", getAllPersonHandler).Methods("GET")
 	r.HandleFunc("/persons", newPersonHandler).Methods("POST")
+	r.HandleFunc("/uploadfile", uploadHandler).Methods("POST")
 
 	log.Println("Runnung the server on port: 8000")
 	http.ListenAndServe(":8000", r)
