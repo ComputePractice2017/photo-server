@@ -5,10 +5,10 @@ import (
 )
 
 //Person - Пользователь, который добавил фото
-type Person struct {
-	ID    string `json:"id",gorethink:"id"`
-	Name  string `json:"name",gorethink:"name"`
-	Photo string `json:"photo",gorethink:"photo"`
+type Photo struct {
+	ID   string `json:"id",gorethink:"id"`
+	Name string `json:"name",gorethink:"name"`
+	Url  string `json:"url",gorethink:"url"`
 }
 
 var session *r.Session
@@ -21,13 +21,13 @@ func InitSesson() error {
 	return err
 }
 
-func GetPersons() ([]Person, error) {
-	res, err := r.DB("instagram").Table("person").Run(session)
+func GetPhotos() ([]Photo, error) {
+	res, err := r.DB("instagram").Table("photo").Run(session)
 	if err != nil {
 		return nil, err
 	}
 
-	var response []Person
+	var response []Photo
 	err = res.All(&response)
 	if err != nil {
 		return nil, err
@@ -35,7 +35,7 @@ func GetPersons() ([]Person, error) {
 	return response, nil
 }
 
-func NewPerson(p Person) (Person, error) {
+func NewPhoto(p Photo) (Photo, error) {
 	res, err := r.UUID().Run(session)
 	if err != nil {
 		return p, err
@@ -48,13 +48,19 @@ func NewPerson(p Person) (Person, error) {
 	}
 
 	p.ID = UUID
-	//p.Name = namephoto
-	//p.Photo = urlphoto
 
-	res, err = r.DB("instagram").Table("person").Insert(p).Run(session)
+	res, err = r.DB("instagram").Table("photo").Insert(p).Run(session)
 	if err != nil {
 		return p, err
 	}
 
 	return p, nil
+}
+
+func DeletePhoto(id string) error {
+	_, err := r.DB("instagram").Table("photo").Get(id).Delete().Run(session)
+	if err != nil {
+		return err
+	}
+	return nil
 }
