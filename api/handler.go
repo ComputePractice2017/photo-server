@@ -20,6 +20,7 @@ func helloWorldHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getAllPhotoHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF8")
 	photos, err := model.GetPhotos()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -31,12 +32,13 @@ func getAllPhotoHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json; charset=UTF8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
 }
 
 func newPhotoHandler(w http.ResponseWriter, r *http.Request) {
 	var photo model.Photo
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
@@ -72,6 +74,7 @@ func newPhotoHandler(w http.ResponseWriter, r *http.Request) {
 }
 func deletePhotoHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	err := model.DeletePhoto(vars["guid"])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -81,7 +84,7 @@ func deletePhotoHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	// the FormFile function takes in the POST input id file
 	file, _, err := r.FormFile("file")
 	u := shortuuid.New()
@@ -109,4 +112,14 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	//fmt.Fprintf(w, "File uploaded successfully : ")
 	//fmt.Fprintf(w, header.Filename)
 	fmt.Fprintf(w, urlphotostr)
+}
+
+func firstOptionsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Allow", "OPTIONS, GET, POST")
+	w.WriteHeader(http.StatusOK)
+}
+
+func secondOptionsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Allow", "OPTIONS, DELETE")
+	w.WriteHeader(http.StatusOK)
 }

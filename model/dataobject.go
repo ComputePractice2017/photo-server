@@ -1,6 +1,9 @@
 package model
 
 import (
+	"log"
+	"os"
+
 	r "gopkg.in/gorethink/gorethink.v3"
 )
 
@@ -14,10 +17,76 @@ type Photo struct {
 var session *r.Session
 
 func InitSesson() error {
+	dbaddress := os.Getenv("RETHINKDB_HOST")
+	if dbaddress == "" {
+		dbaddress = "192.168.99.100"
+	}
+
+	log.Printf("RETHINKDB_HOST: %s\n", dbaddress)
 	var err error
 	session, err = r.Connect(r.ConnectOpts{
-		Address: "localhost",
+		Address: dbaddress,
 	})
+	if err != nil {
+		return err
+	}
+
+	err = CreateDBIfNotExist()
+	if err != nil {
+		return err
+	}
+
+	err = CreateTableIfNotExist()
+
+	return err
+}
+
+func CreateDBIfNotExist() error {
+	res, err := r.DBList().Run(session)
+	if err != nil {
+		return err
+	}
+
+	var dbList []string
+	err = res.All(&dbList)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range dbList {
+		if item == "instagram" {
+			return nil
+		}
+	}
+
+	_, err = r.DBCreate("instagram").Run(session)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CreateTableIfNotExist() error {
+	res, err := r.DB("instagram").TableList().Run(session)
+	if err != nil {
+		return err
+	}
+
+	var tableList []string
+	err = res.All(&tableList)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range tableList {
+		if item == "photo" {
+			return nil
+		}
+	}
+
+	_, err = r.DB("instagram").TableCreate("photo", r.TableCreateOpts{PrimaryKey: "ID"}).Run(session)
+
 	return err
 }
 
